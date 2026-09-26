@@ -18,9 +18,9 @@ class Player:
         self.position = pygame.Vector2(WIDTH / 2, HEIGHT / 2)
         self.velocity = pygame.Vector2(0, 0)
         self.rect = pygame.Rect(
-            self.position.x - self.width / 2,
-            self.position.y - self.height / 2,
-            self.width, self.height)
+            self.position.x - self.size / 2,
+            self.position.y - self.size / 2,
+            self.size, self.size)
 
     def move(self, dt):
         # Controls
