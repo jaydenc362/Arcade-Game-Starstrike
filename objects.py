@@ -1,11 +1,11 @@
-# Class setup
+# Object setup
 import pygame
 import random
 from collisions import Collisions
 WIDTH = 1920
 HEIGHT = 1080
 
-# Player class
+# Player object
 class Player:
     def __init__(self):
         # Customizable
@@ -85,7 +85,7 @@ class Player:
             self.size, self.size))
 
 
-# Laser class
+# Laser object
 class Laser:
     laser_list = []
     def __init__(self, player_position, player_velocity):
@@ -127,7 +127,7 @@ class Laser:
             self.position.y - self.height / 2,
             self.width, self.height))
 
-# Meteor class
+# Meteor object
 class Meteor:
     meteor_list = []
     def __init__(self):
@@ -163,7 +163,7 @@ class Meteor:
             surface, self.color,
             self.position, self.radius)
 
-# Star class
+# Star object
 class Star:
     star_list = []
     def __init__(self, pregenerate = False):
