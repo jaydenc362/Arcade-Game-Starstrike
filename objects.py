@@ -12,15 +12,22 @@ class Player:
         self.acceleration = 1000
         self.friction = 1000
         self.max_velocity = 1000
-        self.size = 100
+        self.width = 100
+        self.height = 100
         self.color = (255, 0, 0)
+        self.health = 3
+        self.immunity_time = 2
+        self.flicker_time = 0.05
         # Uncustomizable
         self.position = pygame.Vector2(WIDTH / 2, HEIGHT / 2)
         self.velocity = pygame.Vector2(0, 0)
         self.rect = pygame.Rect(
-            self.position.x - self.size / 2,
-            self.position.y - self.size / 2,
-            self.size, self.size)
+            self.position.x - self.width / 2,
+            self.position.y - self.height / 2,
+            self.width, self.height)
+        self.immune = False
+        self.immunity_timer = 0
+        self.flicker_timer = 0
 
     def move(self, dt):
         # Controls
@@ -56,16 +63,48 @@ class Player:
     def shoot_laser(self):
         Laser.laser_list.append(Laser(self.position, self.velocity))
 
+    def take_damage(self):
+        # If touched by meteor
+        for meteor in Meteor.meteor_list:
+            if not self.immune and Collisions.circle_rect_collision(meteor.position, meteor.radius, self.rect):
+                self.health -= 1
+                self.immune = True
+                self.immunity_timer = self.immunity_time
+                knock_back = self.calculate_player_meteor_knock_back(meteor)
+                self.velocity += knock_back
+
+    def calculate_player_meteor_knock_back(self, meteor):
+        direction = self.position - meteor.position
+        normal_direction = direction.normalize()
+        return normal_direction * meteor.velocity.length() * 5
+
+    def deplete_immunity(self, dt):
+        if self.immune:
+            self.immunity_timer -= dt
+            self.flicker_timer -= dt
+            if self.immunity_timer <= 0:
+                self.immunity_timer = 0
+                self.immune = False
+                self.color = (255, 0, 0)
+            # Flicker when immune
+            elif self.flicker_timer <= 0:
+                self.flicker_timer = self.flicker_time
+                if self.color == (255, 0, 0):
+                    self.color = (100, 0, 0)
+                else:
+                    self.color = (255, 0, 0)
+
     def screen_wrap(self):
-        half_size = self.size / 2
-        if self.position.x < -half_size:
-            self.position.x = WIDTH + half_size
-        elif self.position.x > WIDTH + half_size:
-            self.position.x = -half_size
-        if self.position.y < -half_size:
-            self.position.y = HEIGHT + half_size
-        elif self.position.y > HEIGHT + half_size:
-            self.position.y = -half_size
+        half_width = self.width / 2
+        half_height = self.height / 2
+        if self.position.x < -half_width:
+            self.position.x = WIDTH + half_width
+        elif self.position.x > WIDTH + half_width:
+            self.position.x = -half_width
+        if self.position.y < -half_height:
+            self.position.y = HEIGHT + half_height
+        elif self.position.y > HEIGHT + half_height:
+            self.position.y = -half_height
 
     def update_rect(self):
         self.rect = pygame.Rect(
@@ -76,13 +115,16 @@ class Player:
     def update(self, dt):
         self.move(dt)
         self.screen_wrap()
+        self.update_rect()
+        self.take_damage()
+        self.deplete_immunity(dt)
 
     def draw(self, surface):
         pygame.draw.rect(
             surface, self.color,
-            (self.position.x - self.size / 2,
-            self.position.y - self.size / 2,
-            self.size, self.size))
+            (self.position.x - self.width / 2,
+            self.position.y - self.height / 2,
+            self.width, self.height))
 
 
 # Laser object
@@ -139,10 +181,10 @@ class Meteor:
         self.position = pygame.Vector2(
             WIDTH + self.radius,
             random.uniform(-self.radius, HEIGHT + self.radius))
-        self.velocity = pygame.Vector2(self.speed, 0)
+        self.velocity = pygame.Vector2(-self.speed, 0)
 
     def move(self, dt):
-        self.position -= self.velocity * dt
+        self.position += self.velocity * dt
 
     def remove(self):
         # If out of bounds

@@ -10,10 +10,8 @@ from objects import Meteor
 class GameState:
     def handle_events(self, events):
         pass
-
     def update(self, dt):
         pass
-
     def draw(self, screen):
         pass
 
@@ -27,7 +25,9 @@ class MenuState(GameState):
             "Starstriker",
             "",
             "By Jayden Chan",
+            "",
             "Press [enter] to start..."
+            "Press [esc] to quit...",
         ]
         self.lines_printed = 0
         self.timer = 0
@@ -103,6 +103,8 @@ class PlayState(GameState):
     def update(self, dt):
         # Update player
         self.player.update(dt)
+        if self.player.health <= 0:
+            return EndState()
         # Update lasers
         for laser in Laser.laser_list[:]:
             laser.update(dt)
@@ -131,5 +133,50 @@ class PlayState(GameState):
         self.player.draw(screen)
         # Draw text
         screen.blit(self.text_surface, (30, 30))
+        # Display
+        pygame.display.flip()
+
+
+# End game state
+class EndState(GameState):
+    def __init__(self):
+        self.font = pygame.font.Font(None, 120)
+        self.lines = [
+            "YOU LOSE!",
+            "",
+            "Press [enter] to restart...",
+            "Press [esc] to enter menu...",
+        ]
+        self.lines_printed = 0
+        self.timer = 0
+
+    def handle_events(self, events):
+        for event in events:
+            if event.type == pygame.QUIT:
+                return False
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    return MenuState()
+                elif event.key == pygame.K_RETURN:
+                    return PlayState()
+        return self
+
+    def update(self, dt):
+        self.timer += dt
+        if self.timer >= 1:
+            self.timer = 0
+            if self.lines_printed < len(self.lines) and self.lines[self.lines_printed] == "": # Skip empty lines
+                self.lines_printed += 1
+            if self.lines_printed < len(self.lines):
+                self.lines_printed += 1
+
+
+    def draw(self, screen):
+        # Screen color
+        screen.fill((0, 0, 0))
+        # Draw text
+        for i in range(self.lines_printed):
+            text_surface = self.font.render(self.lines[i], True, (255, 255, 255))
+            screen.blit(text_surface, (30, 30 + i * self.font.get_height()))
         # Display
         pygame.display.flip()

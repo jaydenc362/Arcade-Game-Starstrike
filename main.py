@@ -24,7 +24,7 @@ while running:
     # Events
     events = pygame.event.get()
     result = current_state.handle_events(events)
-    if result == False:
+    if result == False: # Check for game state switch triggered by handle_events()
         running = False
     else:
         current_state = result
@@ -33,8 +33,10 @@ while running:
     dt = clock.tick(FPS) / 1000
 
     # Run game state
-    current_state.update(dt)
+    result = current_state.update(dt)
     current_state.draw(screen)
+    if result != None: # Check for game state switch triggered by update()
+        current_state = result
 
 
 # Pygame end
