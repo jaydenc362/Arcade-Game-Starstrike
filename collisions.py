@@ -11,7 +11,7 @@ class Collisions:
         return a.colliderect(b)
 
     def circle_circle_collision(a_position, a_radius, b_position, b_radius):
-        dx = a_position.x - a_radius.x
-        dy = a_position.y - a_radius.y
+        dx = a_position.x - b_position.x
+        dy = a_position.y - b_position.y
         radius_sum = a_radius + b_radius
         return dx * dx + dy * dy <= radius_sum * radius_sum

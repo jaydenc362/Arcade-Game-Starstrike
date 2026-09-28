@@ -1,5 +1,7 @@
 # Game state setup
 import pygame
+WIDTH = 1920
+HEIGHT = 1080
 from objects import Player
 from objects import Laser
 from objects import Star
@@ -73,9 +75,10 @@ class PlayState(GameState):
         self.wave = 0
         self.wave_event = pygame.event.custom_type()
         pygame.time.set_timer(self.wave_event, 2000)
-        self.text_surface = self.font.render("Wave: " + str(self.wave), True, (255, 255, 255))
-        # Initiate player
+        self.wave_text_surface = "Wave: "
+        # Initiate player, and health
         self.player = Player()
+        self.health_text_surface = "Health: "
         # Initiate lasers
         Laser.laser_list.clear()
         # Initiate stars
@@ -115,7 +118,8 @@ class PlayState(GameState):
         for star in Star.star_list[:]:
             star.update(dt)
         # Update text
-        self.text_surface = self.font.render("Wave: " + str(self.wave), True, (255, 255, 255))
+        self.wave_text_surface = self.font.render("Wave: " + str(self.wave), True, (255, 255, 255))
+        self.health_text_surface = self.font.render("Health: " + str(self.player.health), True, (0, 255, 0))
 
     def draw(self, screen):
         # Screen color
@@ -132,7 +136,8 @@ class PlayState(GameState):
         # Draw player
         self.player.draw(screen)
         # Draw text
-        screen.blit(self.text_surface, (30, 30))
+        screen.blit(self.wave_text_surface, (30, 30))
+        screen.blit(self.health_text_surface, (WIDTH - 30 - self.health_text_surface.get_width(), 30))
         # Display
         pygame.display.flip()
 
