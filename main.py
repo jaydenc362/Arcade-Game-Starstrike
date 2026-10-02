@@ -42,3 +42,28 @@ while running:
 # Pygame end
 pygame.quit()
 sys.exit()
+
+# ============================
+# UNIT 2 MATH & AI EXPLANATION
+# ============================
+
+# Vectors
+# Storing position and velocity of objects
+
+# Distance
+# TO BE IMPLEMENTED IN ENEMY RANGE DETECTION
+
+# Normalization
+# Calculating normal direction meteor hits player, multiplied by meteor's velocity to create knockback vector
+
+# Angles / sine / cosine
+# TO BE IMPLEMENTED IN ENEMY ROTATION
+
+# Velocity and acceleration
+# Player acceleration scaler is added to player velocity vector, which is then added to player position vector
+
+# Dot product
+# TO BE USED FOR ENEMY FOV DETECTION
+
+# AI decision-making
+# TO BE IMPLEMENTED IN ENEMY OBJECTS
