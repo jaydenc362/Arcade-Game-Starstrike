@@ -212,7 +212,10 @@ class Star:
         # Customizable
         self.radius = random.randint(1, 2)
         self.speed = random.uniform(30, 70) * self.radius
-        self.color = (255, 255, 255)
+        self.color = (
+            255 - self.radius * 50,
+            255 - self.radius * 50,
+            255 - self.radius * 50)
         # Uncustomizable
         self.position = pygame.Vector2(
             random.uniform(-self.radius, WIDTH + self.radius) if pregenerate else WIDTH + self.radius,
