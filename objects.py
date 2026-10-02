@@ -126,7 +126,6 @@ class Player:
             self.position.y - self.height / 2,
             self.width, self.height))
 
-
 # Laser object
 class Laser:
     laser_list = []
@@ -232,6 +231,68 @@ class Star:
 
     def update(self, dt):
         self.move(dt)
+        self.remove()
+
+    def draw(self, surface):
+        pygame.draw.circle(
+            surface, self.color,
+            self.position, self.radius)
+
+# Enemy Object
+class Enemy:
+    enemy_list = []
+    def __init__(self):
+        # Customizable
+        self.width = 50
+        self.height = 50
+        self.health = 2
+        self.speed = 200
+        self.color = (0, 255, 0)
+        # Uncustomizable
+        self.position = pygame.Vector2(
+            WIDTH + self.width,
+            random.uniform(-self.height, HEIGHT + self.height))
+        self.velocity = pygame.Vector2(-self.speed, 0)
+        self.rect = pygame.Rect(
+            self.position.x - self.width / 2,
+            self.position.y - self.height / 2,
+            self.width, self.height)
+        
+    def take_damage(self):
+        # If touched by meteor
+        for meteor in Meteor.meteor_list:
+            if not self.immune and Collisions.circle_rect_collision(meteor.position, meteor.radius, self.rect):
+                self.health -= 1
+                self.immune = True
+                self.immunity_timer = self.immunity_time
+                knock_back = self.calculate_player_meteor_knock_back(meteor)
+                self.velocity += knock_back
+
+    def move(self, dt):
+        self.position += self.velocity * dt
+        
+    def update_rect(self):
+        self.rect = pygame.Rect(
+            self.position.x - self.width / 2,
+            self.position.y - self.height / 2,
+            self.width, self.height)
+
+    def remove(self):
+        # If out of bounds
+        if self.position.x < -self.width:
+            Enemy.enemy_list.remove(self)
+        # If touched by laser
+        for laser in Laser.laser_list:
+            if Collisions.rect_rect_collision(self.position, self.radius, laser.rect):
+                self.health -= 1
+                if self.health <= 0:
+                    Meteor.meteor_list.remove(self)
+                    break
+                break
+            
+    def update(self, dt):
+        self.move(dt)
+        self.update_rect()
         self.remove()
 
     def draw(self, surface):
