@@ -17,7 +17,7 @@ class Player:
         self.max_velocity = 1000
         self.width = 174
         self.height = 81
-        self.health = 3
+        self.health = 5
         self.immunity_time = 2
         self.flicker_time = 0.05
         # Uncustomizable
@@ -200,7 +200,9 @@ class Meteor:
         self.position = pygame.Vector2(
             WIDTH + self.radius,
             random.uniform(-self.radius, HEIGHT + self.radius))
-        self.velocity = pygame.Vector2(-self.speed, 0)
+        self.velocity = pygame.Vector2(
+            -self.speed,
+            random.uniform(-self.speed / 3, self.speed / 3))
 
     def move(self, dt):
         self.position += self.velocity * dt
@@ -235,9 +237,9 @@ class Star:
         self.radius = random.randint(1, 2)
         self.speed = random.uniform(30, 70) * self.radius
         self.color = (
-            255 - self.radius * 50,
-            255 - self.radius * 50,
-            255 - self.radius * 50)
+            255 - self.radius * 30,
+            255 - self.radius * 30,
+            255 - self.radius * 30)
         # Uncustomizable
         self.position = pygame.Vector2(
             random.uniform(-self.radius, WIDTH + self.radius) if pregenerate else WIDTH + self.radius,

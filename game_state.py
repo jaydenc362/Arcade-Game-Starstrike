@@ -75,7 +75,7 @@ class PlayState(GameState):
         # Initiate wave, wave event, and wave text
         self.wave = 0
         self.wave_event = pygame.event.custom_type()
-        pygame.time.set_timer(self.wave_event, 5000)
+        pygame.time.set_timer(self.wave_event, 3000)
         self.wave_text_surface = "Wave: "
         # Initiate player, and health
         self.player = Player()
