@@ -6,9 +6,10 @@ from objects import Player
 from objects import Laser
 from objects import Star
 from objects import Meteor
+from objects import Enemy
 
 
-# Game state class
+# Game state interface
 class GameState:
     def handle_events(self, events):
         pass
@@ -24,7 +25,7 @@ class MenuState(GameState):
         self.font = pygame.font.Font(None, 120)
         self.lines = [
             "Arcade Game:",
-            "Starstriker",
+            "Starstrike: Python Edition",
             "",
             "By Jayden Chan",
             "",
@@ -87,6 +88,8 @@ class PlayState(GameState):
             Star.star_list.append(Star(True))
         # Initiate meteors
         Meteor.meteor_list.clear()
+        # Initiate enemies
+        Enemy.enemy_list.clear()
 
     def handle_events(self, events):
         for event in events:
@@ -99,8 +102,12 @@ class PlayState(GameState):
                     self.player.shoot_laser()
             elif event.type == self.wave_event:
                 self.wave += 1
+                # Spawn meteors
                 for _ in range(1 + self.wave // 5):
                     Meteor.meteor_list.append(Meteor())
+                # Spawn enemies
+                for _ in range(0 + self.wave // 7):
+                    Enemy.enemy_list.append(Enemy())
         return self
 
     def update(self, dt):
@@ -111,6 +118,9 @@ class PlayState(GameState):
         # Update lasers
         for laser in Laser.laser_list[:]:
             laser.update(dt)
+        # Update enemies
+        for enemy in Enemy.enemy_list[:]:
+            enemy.update(dt)
         # Update meteors
         for meteor in Meteor.meteor_list[:]:
             meteor.update(dt)
@@ -133,6 +143,9 @@ class PlayState(GameState):
         # Draw meteors
         for meteor in Meteor.meteor_list:
             meteor.draw(screen)
+        # Draw enemies
+        for enemy in Enemy.enemy_list:
+            enemy.draw(screen)
         # Draw player
         self.player.draw(screen)
         # Draw text

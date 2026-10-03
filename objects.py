@@ -1,6 +1,7 @@
 # Object setup
 import pygame
 import random
+import math
 from collisions import Collisions
 WIDTH = 1920
 HEIGHT = 1080
@@ -55,28 +56,42 @@ class Player:
             elif self.velocity.y < 0:
                 self.velocity.y = min(0, self.velocity.y + self.friction * dt)
         # Enforce max velocity
-        self.velocity.x = max(-self.max_velocity, min(self.velocity.x, self.max_velocity))
-        self.velocity.y = max(-self.max_velocity, min(self.velocity.y, self.max_velocity))
+        if self.velocity.length() > self.max_velocity:
+            self.velocity.scale_to_length(self.max_velocity)
         # Apply velocity to position
         self.position += self.velocity * dt
+        # Apply screen wrap
+        self.screen_wrap()
+        # Apply position to rect
+        self.update_rect()
 
     def shoot_laser(self):
         Laser.laser_list.append(Laser(self.position, self.velocity))
 
     def take_damage(self):
         # If touched by meteor
-        for meteor in Meteor.meteor_list:
+        for meteor in Meteor.meteor_list[:]:
             if not self.immune and Collisions.circle_rect_collision(meteor.position, meteor.radius, self.rect):
                 self.health -= 1
                 self.immune = True
                 self.immunity_timer = self.immunity_time
-                knock_back = self.calculate_player_meteor_knock_back(meteor)
+                knock_back = self.calculate_knock_back(meteor)
                 self.velocity += knock_back
+        # If touched by enemy
+            for enemy in Enemy.enemy_list[:]:
+                if not self.immune and Collisions.rect_rect_collision(self.rect, enemy.rect):
+                    self.health -= 1
+                    self.immune = True
+                    self.immunity_timer = self.immunity_time
+                    knock_back = self.calculate_knock_back(enemy)
+                    self.velocity += knock_back
 
-    def calculate_player_meteor_knock_back(self, meteor):
-        direction = self.position - meteor.position
+    def calculate_knock_back(self, other):
+        direction = self.position - other.position
+        if direction.length() == 0:
+            return pygame.Vector2(0, 0)
         normal_direction = direction.normalize()
-        return normal_direction * meteor.velocity.length() * 5
+        return normal_direction * other.velocity.length() * 5
 
     def deplete_immunity(self, dt):
         if self.immune:
@@ -114,8 +129,6 @@ class Player:
 
     def update(self, dt):
         self.move(dt)
-        self.screen_wrap()
-        self.update_rect()
         self.take_damage()
         self.deplete_immunity(dt)
 
@@ -153,8 +166,10 @@ class Laser:
             self.width, self.height)
 
     def remove(self):
+        # If out of bounds
         if self.position.x > WIDTH + self.width:
             Laser.laser_list.remove(self)
+        # If touched by meteor logic is done in Meteor to destroy both at same time
 
     def update(self, dt):
         self.move(dt)
@@ -189,11 +204,13 @@ class Meteor:
         # If out of bounds
         if self.position.x < -self.radius:
             Meteor.meteor_list.remove(self)
+            return
         # If touched by laser
-        for laser in Laser.laser_list:
+        for laser in Laser.laser_list[:]:
             if Collisions.circle_rect_collision(self.position, self.radius, laser.rect):
                 Meteor.meteor_list.remove(self)
-                break
+                Laser.laser_list.remove(laser)
+                return
     
     def update(self, dt):
         self.move(dt)
@@ -243,59 +260,98 @@ class Enemy:
     enemy_list = []
     def __init__(self):
         # Customizable
-        self.width = 50
+        self.width = 70
         self.height = 50
-        self.health = 2
-        self.speed = 200
+        self.angle = 0
+        self.acceleration = 500
+        self.max_velocity = 500
         self.color = (0, 255, 0)
+        self.health = 2
+        self.immunity_time = 2
+        self.flicker_time = 0.05
         # Uncustomizable
         self.position = pygame.Vector2(
             WIDTH + self.width,
             random.uniform(-self.height, HEIGHT + self.height))
-        self.velocity = pygame.Vector2(-self.speed, 0)
+        self.velocity = pygame.Vector2(-self.max_velocity, 0)
         self.rect = pygame.Rect(
             self.position.x - self.width / 2,
             self.position.y - self.height / 2,
             self.width, self.height)
-        
+        self.immune = False
+        self.immunity_timer = 0
+        self.flicker_timer = 0
+
+    def move(self, dt):
+        # Apply acceleration to velocity
+        self.velocity.x -= self.acceleration * dt * math.cos(self.angle)
+        self.velocity.y -= self.acceleration * dt * math.sin(self.angle)
+        # Enforce max velocity
+        if self.velocity.length() > self.max_velocity:
+            self.velocity.scale_to_length(self.max_velocity)
+        # Apply velocity to position
+        self.position += self.velocity * dt
+        # Apply position to rect
+        self.update_rect()
+
     def take_damage(self):
-        # If touched by meteor
-        for meteor in Meteor.meteor_list:
-            if not self.immune and Collisions.circle_rect_collision(meteor.position, meteor.radius, self.rect):
+        # If touched by laser
+        for laser in Laser.laser_list[:]:
+            if not self.immune and Collisions.rect_rect_collision(self.rect, laser.rect):
                 self.health -= 1
                 self.immune = True
                 self.immunity_timer = self.immunity_time
-                knock_back = self.calculate_player_meteor_knock_back(meteor)
+                knock_back = self.calculate_enemy_laser_knock_back(laser)
                 self.velocity += knock_back
 
-    def move(self, dt):
-        self.position += self.velocity * dt
-        
-    def update_rect(self):
-        self.rect = pygame.Rect(
-            self.position.x - self.width / 2,
-            self.position.y - self.height / 2,
-            self.width, self.height)
+    def calculate_enemy_laser_knock_back(self, laser):
+            direction = self.position - laser.position
+            if direction.length() == 0:
+                return pygame.Vector2(0, 0)
+            normal_direction = direction.normalize()
+            return normal_direction * laser.velocity.length() * 0.25
+    
+    def deplete_immunity(self, dt):
+        if self.immune:
+            self.immunity_timer -= dt
+            self.flicker_timer -= dt
+            if self.immunity_timer <= 0:
+                self.immunity_timer = 0
+                self.immune = False
+                self.color = (0, 255, 0)
+            # Flicker when immune
+            elif self.flicker_timer <= 0:
+                self.flicker_timer = self.flicker_time
+                if self.color == (0, 255, 0):
+                    self.color = (0, 100, 0)
+                else:
+                    self.color = (0, 255, 0)
 
     def remove(self):
         # If out of bounds
         if self.position.x < -self.width:
             Enemy.enemy_list.remove(self)
+            return
         # If touched by laser
-        for laser in Laser.laser_list:
-            if Collisions.rect_rect_collision(self.position, self.radius, laser.rect):
-                self.health -= 1
-                if self.health <= 0:
-                    Meteor.meteor_list.remove(self)
-                    break
-                break
+        if self.health <= 0:
+            Enemy.enemy_list.remove(self)
+            return
+
+    def update_rect(self):
+        self.rect = pygame.Rect(
+            self.position.x - self.width / 2,
+            self.position.y - self.height / 2,
+            self.width, self.height)
             
     def update(self, dt):
         self.move(dt)
-        self.update_rect()
+        self.take_damage()
         self.remove()
+        self.deplete_immunity(dt)
 
     def draw(self, surface):
-        pygame.draw.circle(
+        pygame.draw.rect(
             surface, self.color,
-            self.position, self.radius)
+            (self.position.x - self.width / 2,
+            self.position.y - self.height / 2,
+            self.width, self.height))
