@@ -262,7 +262,9 @@ class Enemy:
         # Customizable
         self.width = 70
         self.height = 50
-        self.angle = 0
+        self.angle = math.pi
+        self.fov = 0.7
+        self.range = 400
         self.acceleration = 500
         self.max_velocity = 500
         self.color = (0, 255, 0)
@@ -281,10 +283,17 @@ class Enemy:
         self.immune = False
         self.immunity_timer = 0
         self.flicker_timer = 0
+        self.states = "standard"
 
-    def move(self, dt):
+    def move(self, dt, player):
+        # Apply angle towards player
+        if self.detected_player(player):
+            direction = player.position - self.position
+            self.angle = math.atan2(-direction.y, direction.x)
+        else:
+            self.angle = math.pi
         # Apply acceleration to velocity
-        self.velocity.x -= self.acceleration * dt * math.cos(self.angle)
+        self.velocity.x -= self.acceleration * dt * -math.cos(self.angle)
         self.velocity.y -= self.acceleration * dt * math.sin(self.angle)
         # Enforce max velocity
         if self.velocity.length() > self.max_velocity:
@@ -337,14 +346,24 @@ class Enemy:
             Enemy.enemy_list.remove(self)
             return
 
+    def detected_player(self, player):
+        forward = pygame.Vector2(math.cos(self.angle), -math.sin(self.angle))
+        direction = (player.position - self.position)
+        distance = direction.length()
+        if distance == 0:
+            return True
+        normal = direction.normalize()
+        dot = forward.dot(normal)
+        return distance < self.range and dot > self.fov
+
     def update_rect(self):
         self.rect = pygame.Rect(
             self.position.x - self.width / 2,
             self.position.y - self.height / 2,
             self.width, self.height)
             
-    def update(self, dt):
-        self.move(dt)
+    def update(self, dt, player):
+        self.move(dt, player)
         self.take_damage()
         self.remove()
         self.deplete_immunity(dt)
@@ -355,3 +374,6 @@ class Enemy:
             (self.position.x - self.width / 2,
             self.position.y - self.height / 2,
             self.width, self.height))
+        pygame.draw.circle(
+            surface, (20, 20, 20),
+            self.position, self.range, 5)

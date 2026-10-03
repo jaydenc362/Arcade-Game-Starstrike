@@ -51,19 +51,19 @@ sys.exit()
 # Storing position and velocity of objects
 
 # Distance
-# TO BE IMPLEMENTED IN ENEMY RANGE DETECTION
+# Calculating detection range
 
 # Normalization
 # Calculating normal direction meteor hits player, multiplied by meteor's velocity to create knockback vector
 
 # Angles / sine / cosine
-# TO BE IMPLEMENTED IN ENEMY ROTATION
+# Affects velocity direction when targeting player
 
 # Velocity and acceleration
 # Player acceleration scaler is added to player velocity vector, which is then added to player position vector
 
 # Dot product
-# TO BE USED FOR ENEMY FOV DETECTION
+# Calculating detection within fov
 
 # AI decision-making
 # TO BE IMPLEMENTED IN ENEMY OBJECTS

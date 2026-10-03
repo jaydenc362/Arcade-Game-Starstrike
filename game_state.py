@@ -106,7 +106,7 @@ class PlayState(GameState):
                 for _ in range(1 + self.wave // 5):
                     Meteor.meteor_list.append(Meteor())
                 # Spawn enemies
-                for _ in range(0 + self.wave // 7):
+                for _ in range(1 + self.wave // 7):
                     Enemy.enemy_list.append(Enemy())
         return self
 
@@ -120,7 +120,7 @@ class PlayState(GameState):
             laser.update(dt)
         # Update enemies
         for enemy in Enemy.enemy_list[:]:
-            enemy.update(dt)
+            enemy.update(dt, self.player)
         # Update meteors
         for meteor in Meteor.meteor_list[:]:
             meteor.update(dt)
