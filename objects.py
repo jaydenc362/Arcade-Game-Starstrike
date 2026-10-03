@@ -81,7 +81,7 @@ class Player:
                 self.velocity += knock_back
         # If touched by enemy
             for enemy in Enemy.enemy_list[:]:
-                if not self.immune and Collisions.rect_rect_collision(self.rect, enemy.rect):
+                if not self.immune and Collisions.rect_rect_collision(self.rect, enemy.rect) and not enemy.immune:
                     self.health -= 1
                     self.immune = True
                     self.immunity_timer = self.immunity_time
@@ -194,7 +194,7 @@ class Meteor:
     def __init__(self):
         # Customizable
         self.radius = random.randint(1, 3) * 20
-        self.speed = random.uniform(5, 10) * self.radius
+        self.speed = random.uniform(500, 700) * 20 / self.radius
         self.color = (100, 100, 100)
         # Uncustomizable
         self.position = pygame.Vector2(
@@ -278,7 +278,7 @@ class Enemy:
         self.max_velocity = 500
         self.color = (0, 255, 0)
         self.health = 2
-        self.immunity_time = 2
+        self.immunity_time = 1
         self.flicker_time = 0.05
         # Uncustomizable
         self.position = pygame.Vector2(
