@@ -29,7 +29,7 @@ class MenuState(GameState):
             "",
             "By Jayden Chan",
             "",
-            "Press [enter] to start..."
+            "Press [enter] to start...",
             "Press [esc] to quit...",
         ]
         self.lines_printed = 0
