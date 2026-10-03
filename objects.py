@@ -374,6 +374,3 @@ class Enemy:
             (self.position.x - self.width / 2,
             self.position.y - self.height / 2,
             self.width, self.height))
-        pygame.draw.circle(
-            surface, (20, 20, 20),
-            self.position, self.range, 5)
