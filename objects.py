@@ -152,7 +152,7 @@ class Laser:
         self.height = 10
         self.color = (255, 255, 0)
         # Uncustomizable
-        self.position = player_position.copy()
+        self.position = player_position.copy() + pygame.Vector2(65, 4.5)
         self.velocity = pygame.Vector2(player_velocity.copy().x + self.speed, 0)
         self.rect = pygame.Rect(
             self.position.x - self.width / 2,
@@ -195,7 +195,10 @@ class Meteor:
         # Customizable
         self.radius = random.randint(1, 3) * 20
         self.speed = random.uniform(500, 700) * 20 / self.radius
-        self.color = (100, 100, 100)
+        self.color = (
+            random.randint(50, 120),
+            random.randint(50, 120),
+            random.randint(50, 120))
         # Uncustomizable
         self.position = pygame.Vector2(
             WIDTH + self.radius,
