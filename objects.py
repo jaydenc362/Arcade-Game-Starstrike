@@ -2,9 +2,11 @@
 import pygame
 import random
 import math
+import assets
 from collisions import Collisions
 WIDTH = 1920
 HEIGHT = 1080
+
 
 # Player object
 class Player:
@@ -13,9 +15,8 @@ class Player:
         self.acceleration = 1000
         self.friction = 1000
         self.max_velocity = 1000
-        self.width = 100
-        self.height = 100
-        self.color = (255, 0, 0)
+        self.width = 174
+        self.height = 81
         self.health = 3
         self.immunity_time = 2
         self.flicker_time = 0.05
@@ -26,6 +27,7 @@ class Player:
             self.position.x - self.width / 2,
             self.position.y - self.height / 2,
             self.width, self.height)
+        self.image = "player"
         self.immune = False
         self.immunity_timer = 0
         self.flicker_timer = 0
@@ -100,14 +102,14 @@ class Player:
             if self.immunity_timer <= 0:
                 self.immunity_timer = 0
                 self.immune = False
-                self.color = (255, 0, 0)
+                self.image = "player"
             # Flicker when immune
             elif self.flicker_timer <= 0:
                 self.flicker_timer = self.flicker_time
-                if self.color == (255, 0, 0):
-                    self.color = (100, 0, 0)
+                if self.image == "player":
+                    self.image = "player_hurt"
                 else:
-                    self.color = (255, 0, 0)
+                    self.image = "player"
 
     def screen_wrap(self):
         half_width = self.width / 2
@@ -133,11 +135,12 @@ class Player:
         self.deplete_immunity(dt)
 
     def draw(self, surface):
-        pygame.draw.rect(
-            surface, self.color,
-            (self.position.x - self.width / 2,
-            self.position.y - self.height / 2,
-            self.width, self.height))
+        image = assets.images[self.image]
+        surface.blit(
+            image,
+            (self.position.x - image.get_width() / 2,
+            self.position.y - image.get_height() / 2))
+
 
 # Laser object
 class Laser:
@@ -155,6 +158,7 @@ class Laser:
             self.position.x - self.width / 2,
             self.position.y - self.height / 2,
             self.width, self.height)
+        self.image = "laser"
 
     def move(self, dt):
         self.position += self.velocity * dt
@@ -177,11 +181,12 @@ class Laser:
         self.remove()
 
     def draw(self, surface):
-        pygame.draw.rect(
-            surface, self.color,
-            (self.position.x - self.width / 2,
-            self.position.y - self.height / 2,
-            self.width, self.height))
+        image = assets.images[self.image]
+        surface.blit(
+            image,
+            (self.position.x - image.get_width() / 2,
+            self.position.y - image.get_height() / 2))
+
 
 # Meteor object
 class Meteor:
@@ -221,6 +226,7 @@ class Meteor:
             surface, self.color,
             self.position, self.radius)
 
+
 # Star object
 class Star:
     star_list = []
@@ -254,6 +260,7 @@ class Star:
         pygame.draw.circle(
             surface, self.color,
             self.position, self.radius)
+
 
 # Enemy Object
 class Enemy:

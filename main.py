@@ -1,6 +1,7 @@
 # Main setup
 import pygame
 import game_state
+import assets
 import sys
 
 
@@ -10,8 +11,9 @@ WIDTH = 1920
 HEIGHT = 1080
 flags = pygame.SCALED | pygame.RESIZABLE
 screen = pygame.display.set_mode((WIDTH, HEIGHT), flags, vsync = 1)
+assets.load_assets()
 pygame.display.set_caption("Jayden Chan's Arcade Game: Starstrike: Python Edition")
-pygame.display.set_icon(pygame.image.load("icon.png"))
+pygame.display.set_icon(assets.images["icon"])
 clock = pygame.time.Clock()
 FPS = 60
 dt = 0
@@ -43,27 +45,28 @@ while running:
 pygame.quit()
 sys.exit()
 
+
 # ============================
 # UNIT 2 MATH & AI EXPLANATION
 # ============================
 
 # Vectors
-# Storing position and velocity of objects
+### Storing position and velocity of objects
 
 # Distance
-# Calculating detection range
+### Calculating detection range
 
 # Normalization
-# Calculating normal direction meteor hits player, multiplied by meteor's velocity to create knockback vector
+### Calculating normal direction meteor hits player, multiplied by meteor's velocity to create knockback vector
 
 # Angles / sine / cosine
-# Affects velocity direction when targeting player
+### Affects velocity direction when targeting player
 
 # Velocity and acceleration
-# Player acceleration scaler is added to player velocity vector, which is then added to player position vector
+### Player acceleration scaler is added to player velocity vector, which is then added to player position vector
 
 # Dot product
-# Calculating detection within fov
+### Calculating detection within fov
 
 # AI decision-making
-# TO BE IMPLEMENTED IN ENEMY OBJECTS
+### TO BE IMPLEMENTED IN ENEMY OBJECTS

@@ -75,7 +75,7 @@ class PlayState(GameState):
         # Initiate wave, wave event, and wave text
         self.wave = 0
         self.wave_event = pygame.event.custom_type()
-        pygame.time.set_timer(self.wave_event, 2000)
+        pygame.time.set_timer(self.wave_event, 5000)
         self.wave_text_surface = "Wave: "
         # Initiate player, and health
         self.player = Player()
@@ -106,7 +106,7 @@ class PlayState(GameState):
                 for _ in range(1 + self.wave // 5):
                     Meteor.meteor_list.append(Meteor())
                 # Spawn enemies
-                for _ in range(1 + self.wave // 7):
+                for _ in range(0 + self.wave // 7):
                     Enemy.enemy_list.append(Enemy())
         return self
 
