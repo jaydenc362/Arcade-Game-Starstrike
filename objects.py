@@ -299,17 +299,7 @@ class Enemy:
         self.flicker_timer = 0
         self.state = "standard"
 
-    def move(self, dt, player):
-        # Apply angle towards player
-        if self.detected_player(player):
-            self.state = "attack"
-            self.image = "enemy_attack"
-            direction = player.position - self.position
-            self.angle = math.atan2(-direction.y, direction.x)
-        else:
-            self.state = "standard"
-            self.image = "enemy"
-            self.angle = math.pi
+    def move(self, dt):
         # Apply acceleration to velocity
         self.velocity.x -= self.acceleration * dt * -math.cos(self.angle)
         self.velocity.y -= self.acceleration * dt * math.sin(self.angle)
@@ -380,14 +370,32 @@ class Enemy:
             self.position.y - self.height / 2,
             self.width, self.height)
 
+    def update_state(self, player):
+        if self.detected_player(player):
+            self.state = "attack"
+        else:
+            self.state = "standard"
+    
     def update(self, dt, player):
-        self.move(dt, player)
+        self.update_state(player)
+        if self.state == "attack":
+            self.image = "enemy_attack"
+            # Apply angle towards player
+            direction = player.position - self.position
+            self.angle = math.atan2(-direction.y, direction.x)
+        else:
+            self.image = "enemy"
+            # Set angle to standard
+            self.angle = math.pi
+        # Applys to all states
+        self.move(dt)
         self.take_damage()
         self.remove()
         self.deplete_immunity(dt)
 
     def draw(self, surface):
-        image = assets.images[self.image]
+        degrees = math.degrees(self.angle) + 180
+        image = pygame.transform.rotate(assets.images[self.image], degrees)
         surface.blit(
             image,
             (self.position.x - image.get_width() / 2,

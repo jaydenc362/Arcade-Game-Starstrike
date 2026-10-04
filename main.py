@@ -50,23 +50,38 @@ sys.exit()
 # UNIT 2 MATH & AI EXPLANATION
 # ============================
 
-# Vectors
-### Storing position and velocity of objects
+# Vectors:
+### Vectors are used here to store the positions and velocities of objects.
+### Their components are used to calculate collisions too.
 
-# Distance
-### Calculating detection range
+# Distance:
+### Distance is used to calculate whether or not an enemy is within range of the player.
+### Distance is used to calculate collisions too.
 
-# Normalization
-### Calculating normal direction meteor hits player, multiplied by meteor's velocity to create knockback vector
+# Normalization:
+### Normalization is used to find the direction where objects would bounce after colliding.
+### These normalized vectors are multiplied by a customized factor to create a knockback velocity vector.
+### The knockback velocity vector is then added to the velocity of the object bouncing away.
 
-# Angles / sine / cosine
-### Affects velocity direction when targeting player
+# Angles / sine / cosine:
+### Angles are used to make enemies move towards the player when detected.
+### The angle is calculated first for its components to be used.
+### Sine affects the X velocity, while cosine affects the Y velocity.
 
-# Velocity and acceleration
-### Player acceleration scaler is added to player velocity vector, which is then added to player position vector
+# Velocity and acceleration:
+### Acceleration is stored as a scalar.
+### Acceleration is added to the player and enemies velocities.
+### Finally, velocity is added to the object's position.
+### This makes movement smooth.
 
-# Dot product
-### Calculating detection within fov
+# Dot product:
+### Dot product is used to calculate if the enemy can see the player within it's FOV.
+### The dot product is compared to the FOV value.
+### If the dot product is greater than the FOV value, the player is within the enemy's FOV.
 
-# AI decision-making
-### Used to determine what image version is drawn
+# AI decision making:
+### AI decision making is used to determine what behavior the enemy should be doing.
+### The state is determined first, by whether or not a player is detected.
+### In the enemy update function, the code is divided by states.
+### If the enemy detects a player, change the angle to follow the player.
+### If not, set the angle back to standard.
