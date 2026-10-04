@@ -202,7 +202,7 @@ class Meteor:
             random.randint(50, 120))
         # Uncustomizable
         self.position = pygame.Vector2(
-            WIDTH + self.radius,
+            WIDTH + self.radius + random.uniform(0, self.radius * 3),
             random.uniform(-self.radius, HEIGHT + self.radius))
         self.velocity = pygame.Vector2(
             -self.speed,
@@ -286,7 +286,7 @@ class Enemy:
         self.flicker_time = 0.05
         # Uncustomizable
         self.position = pygame.Vector2(
-            WIDTH + self.width,
+            WIDTH + self.width + random.uniform(0, self.width * 3),
             random.uniform(-self.height, HEIGHT + self.height))
         self.velocity = pygame.Vector2(-self.max_velocity, 0)
         self.rect = pygame.Rect(
