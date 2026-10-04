@@ -6,6 +6,7 @@ from objects import Laser
 from objects import Star
 from objects import Meteor
 from objects import Enemy
+from objects import Explosion
 WIDTH = 1920
 HEIGHT = 1080
 
@@ -94,6 +95,8 @@ class PlayState(GameState):
         Meteor.meteor_list.clear()
         # Initiate enemies
         Enemy.enemy_list.clear()
+        # Initiate explosions
+        Explosion.explosion_list.clear()
 
     def handle_events(self, events):
         for event in events:
@@ -118,6 +121,11 @@ class PlayState(GameState):
         # Update player
         self.player.update(dt)
         if self.player.health <= 0:
+            Explosion.explosion_list.append(
+                Explosion(
+                    self.player.position,
+                    self.player.velocity,
+                    self.player.height, False))
             return EndState()
         # Update lasers
         for laser in Laser.laser_list[:]:
@@ -128,6 +136,9 @@ class PlayState(GameState):
         # Update meteors
         for meteor in Meteor.meteor_list[:]:
             meteor.update(dt)
+        # Update explosions
+        for explosion in Explosion.explosion_list[:]:
+            explosion.update(dt)
         # Update stars
         for star in Star.star_list[:]:
             star.update(dt)
@@ -150,6 +161,9 @@ class PlayState(GameState):
         # Draw enemies
         for enemy in Enemy.enemy_list:
             enemy.draw(screen)
+        # Draw explosions
+        for explosion in Explosion.explosion_list:
+            explosion.draw(screen)
         # Draw player
         self.player.draw(screen)
         # Draw text

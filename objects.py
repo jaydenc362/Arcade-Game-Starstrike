@@ -69,7 +69,6 @@ class Player:
 
     def shoot_laser(self):
         Laser.laser_list.append(Laser(self.position, self.velocity))
-        assets.sounds["pew"].play()
 
     def take_damage(self):
         # If touched by meteor
@@ -160,6 +159,7 @@ class Laser:
             self.position.y - self.height / 2,
             self.width, self.height)
         self.image = "laser"
+        assets.sounds["pew"].play()
 
     def move(self, dt):
         self.position += self.velocity * dt
@@ -221,6 +221,7 @@ class Meteor:
             if Collisions.circle_rect_collision(self.position, self.radius, laser.rect):
                 Meteor.meteor_list.remove(self)
                 Laser.laser_list.remove(laser)
+                Explosion.explosion_list.append(Explosion(self.position, self.velocity, self.radius))
                 return
     
     def update(self, dt):
@@ -352,6 +353,7 @@ class Enemy:
         # If touched by laser
         if self.health <= 0:
             Enemy.enemy_list.remove(self)
+            Explosion.explosion_list.append(Explosion(self.position, self.velocity, self.height))
             return
 
     def detected_player(self, player):
@@ -396,6 +398,54 @@ class Enemy:
     def draw(self, surface):
         degrees = math.degrees(self.angle) + 180
         image = pygame.transform.rotate(assets.images[self.image], degrees)
+        surface.blit(
+            image,
+            (self.position.x - image.get_width() / 2,
+            self.position.y - image.get_height() / 2))
+
+
+# Explosion Object
+class Explosion:
+    explosion_list = []
+    def __init__(self, position, velocity, size, sound = True):
+        # Customizable
+        self.size = size * 4
+        self.time = 0.3
+        self.change_time = 0.1
+        # Uncustomizable
+        self.position = position
+        self.velocity = velocity
+        self.degrees = random.uniform(-180, 180)
+        self.timer = 0
+        self.change_timer = 0
+        self.image = "boom"
+        if sound:
+            assets.sounds["boom"].play()
+
+    def move(self, dt):
+        self.position += self.velocity * dt
+
+    def remove(self):
+        Explosion.explosion_list.remove(self)
+
+    def update(self, dt):
+        self.timer += dt
+        self.change_timer += dt
+        # Remove when time is up
+        if self.timer > self.time:
+            self.remove()
+        # Changes to appearance
+        if self.change_timer >= self.change_time:
+            self.change_timer = 0
+            self.size /= 2
+            self.degrees = random.uniform(-180, 180)
+        self.move(dt)
+
+    def draw(self, surface):
+        image = pygame.transform.rotate(pygame.transform.scale(
+            assets.images[self.image],
+            (self.size, self.size)),
+            self.degrees)
         surface.blit(
             image,
             (self.position.x - image.get_width() / 2,
