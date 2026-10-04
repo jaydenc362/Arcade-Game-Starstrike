@@ -272,8 +272,8 @@ class Enemy:
     enemy_list = []
     def __init__(self):
         # Customizable
-        self.width = 70
-        self.height = 50
+        self.width = 130
+        self.height = 60
         self.angle = math.pi
         self.fov = 0.7
         self.range = 400
@@ -292,17 +292,22 @@ class Enemy:
             self.position.x - self.width / 2,
             self.position.y - self.height / 2,
             self.width, self.height)
+        self.image = "enemy"
         self.immune = False
         self.immunity_timer = 0
         self.flicker_timer = 0
-        self.states = "standard"
+        self.state = "standard"
 
     def move(self, dt, player):
         # Apply angle towards player
         if self.detected_player(player):
+            self.state = "attack"
+            self.image = "enemy_attack"
             direction = player.position - self.position
             self.angle = math.atan2(-direction.y, direction.x)
         else:
+            self.state = "standard"
+            self.image = "enemy"
             self.angle = math.pi
         # Apply acceleration to velocity
         self.velocity.x -= self.acceleration * dt * -math.cos(self.angle)
@@ -339,14 +344,14 @@ class Enemy:
             if self.immunity_timer <= 0:
                 self.immunity_timer = 0
                 self.immune = False
-                self.color = (0, 255, 0)
+                self.image = "enemy" if self.state == "standard" else "enemy_attack"
             # Flicker when immune
             elif self.flicker_timer <= 0:
                 self.flicker_timer = self.flicker_time
-                if self.color == (0, 255, 0):
-                    self.color = (0, 100, 0)
+                if self.image == "enemy" or self.image == "enemy_attack":
+                    self.image = "enemy_hurt" if self.state == "standard" else "enemy_attack_hurt"
                 else:
-                    self.color = (0, 255, 0)
+                    self.image = "enemy" if self.state == "standard" else "enemy_attack"
 
     def remove(self):
         # If out of bounds
@@ -373,7 +378,7 @@ class Enemy:
             self.position.x - self.width / 2,
             self.position.y - self.height / 2,
             self.width, self.height)
-            
+
     def update(self, dt, player):
         self.move(dt, player)
         self.take_damage()
@@ -381,8 +386,8 @@ class Enemy:
         self.deplete_immunity(dt)
 
     def draw(self, surface):
-        pygame.draw.rect(
-            surface, self.color,
-            (self.position.x - self.width / 2,
-            self.position.y - self.height / 2,
-            self.width, self.height))
+        image = assets.images[self.image]
+        surface.blit(
+            image,
+            (self.position.x - image.get_width() / 2,
+            self.position.y - image.get_height() / 2))

@@ -69,4 +69,4 @@ sys.exit()
 ### Calculating detection within fov
 
 # AI decision-making
-### TO BE IMPLEMENTED IN ENEMY OBJECTS
+### Used to determine what image version is drawn
