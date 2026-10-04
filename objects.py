@@ -134,12 +134,16 @@ class Player:
         self.take_damage()
         self.deplete_immunity(dt)
 
-    def draw(self, surface):
+    def draw(self, surface, debug):
         image = assets.images[self.image]
         surface.blit(
             image,
             (self.position.x - image.get_width() / 2,
             self.position.y - image.get_height() / 2))
+        if debug:
+            pygame.draw.rect(
+                surface, (0, 255, 0),
+                (self.position.x - self.width / 2, self.position.y - self.height / 2, self.width, self.height), 1)
 
 
 # Laser object
@@ -181,12 +185,16 @@ class Laser:
         self.update_rect()
         self.remove()
 
-    def draw(self, surface):
+    def draw(self, surface, debug):
         image = assets.images[self.image]
         surface.blit(
             image,
             (self.position.x - image.get_width() / 2,
             self.position.y - image.get_height() / 2))
+        if debug:
+            pygame.draw.rect(
+                surface, (0, 0, 255),
+                (self.position.x - self.width / 2, self.position.y - self.height / 2, self.width, self.height), 1)
 
 
 # Meteor object
@@ -228,10 +236,12 @@ class Meteor:
         self.move(dt)
         self.remove()
 
-    def draw(self, surface):
+    def draw(self, surface, debug):
         pygame.draw.circle(
             surface, self.color,
             self.position, self.radius)
+        if debug:
+            pygame.draw.circle(surface, (255, 255, 255), self.position, self.radius, 1)
 
 
 # Star object
@@ -395,13 +405,28 @@ class Enemy:
         self.remove()
         self.deplete_immunity(dt)
 
-    def draw(self, surface):
+    def draw(self, surface, debug):
         degrees = math.degrees(self.angle) + 180
         image = pygame.transform.rotate(assets.images[self.image], degrees)
         surface.blit(
             image,
             (self.position.x - image.get_width() / 2,
             self.position.y - image.get_height() / 2))
+        if debug:
+            # Enemy hitbox
+            pygame.draw.rect(
+                surface, (255, 0, 0),
+                (self.position.x - self.width / 2, self.position.y - self.height / 2, self.width, self.height), 1)
+            # Enemy range
+            pygame.draw.circle(surface, (255, 255, 255), self.position, self.range, 1)
+            # Enemy FOV
+            half_fov = math.acos(self.fov)
+            angle1 = self.angle - half_fov
+            angle2 = self.angle + half_fov
+            end1 = self.position + pygame.Vector2(math.cos(angle1), -math.sin(angle1)) * self.range
+            pygame.draw.line(surface, (255, 255, 255), self.position, end1, 1)
+            end2 = self.position + pygame.Vector2(math.cos(angle2), -math.sin(angle2)) * self.range
+            pygame.draw.line(surface, (255, 255, 255), self.position, end2, 1)
 
 
 # Explosion Object

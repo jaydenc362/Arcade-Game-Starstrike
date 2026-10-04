@@ -77,6 +77,8 @@ class PlayState(GameState):
     def __init__(self):
         # Initiate fonts
         self.font = pygame.font.Font(None, 70)
+        # Initate debug mode
+        self.debug = False
         # Initiate wave, wave event, and wave text
         self.wave = 0
         self.wave_event = pygame.event.custom_type()
@@ -107,6 +109,8 @@ class PlayState(GameState):
                     return MenuState()
                 elif event.key == pygame.K_SPACE:
                     self.player.shoot_laser()
+                elif event.key == pygame.K_TAB:
+                    self.debug = not self.debug
             elif event.type == self.wave_event:
                 self.wave += 1
                 # Spawn meteors
@@ -154,18 +158,18 @@ class PlayState(GameState):
             star.draw(screen)
         # Draw lasers
         for laser in Laser.laser_list:
-            laser.draw(screen)
+            laser.draw(screen, self.debug)
         # Draw meteors
         for meteor in Meteor.meteor_list:
-            meteor.draw(screen)
+            meteor.draw(screen, self.debug)
         # Draw enemies
         for enemy in Enemy.enemy_list:
-            enemy.draw(screen)
+            enemy.draw(screen, self.debug)
         # Draw explosions
         for explosion in Explosion.explosion_list:
             explosion.draw(screen)
         # Draw player
-        self.player.draw(screen)
+        self.player.draw(screen, self.debug)
         # Draw text
         screen.blit(self.wave_text_surface, (30, 30))
         screen.blit(self.health_text_surface, (WIDTH - 30 - self.health_text_surface.get_width(), 30))
