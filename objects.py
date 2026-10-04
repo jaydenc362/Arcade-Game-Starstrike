@@ -69,6 +69,7 @@ class Player:
 
     def shoot_laser(self):
         Laser.laser_list.append(Laser(self.position, self.velocity))
+        assets.sounds["pew"].play()
 
     def take_damage(self):
         # If touched by meteor

@@ -1,12 +1,13 @@
 # Game state setup
 import pygame
-WIDTH = 1920
-HEIGHT = 1080
+import assets
 from objects import Player
 from objects import Laser
 from objects import Star
 from objects import Meteor
 from objects import Enemy
+WIDTH = 1920
+HEIGHT = 1080
 
 
 # Game state interface
@@ -34,6 +35,8 @@ class MenuState(GameState):
         ]
         self.lines_printed = 0
         self.timer = 0
+        pygame.mixer.music.set_volume(0.5)
+        pygame.mixer.music.play(-1)
 
     def handle_events(self, events):
         for event in events:
@@ -43,6 +46,7 @@ class MenuState(GameState):
                 if event.key == pygame.K_ESCAPE:
                     return False
                 elif event.key == pygame.K_RETURN:
+                    pygame.mixer.music.stop()
                     return PlayState()
         return self
 
@@ -167,6 +171,7 @@ class EndState(GameState):
         ]
         self.lines_printed = 0
         self.timer = 0
+        assets.sounds["death"].play()
 
     def handle_events(self, events):
         for event in events:
