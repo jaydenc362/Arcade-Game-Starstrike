@@ -36,6 +36,8 @@ class MenuState(GameState):
         ]
         self.lines_printed = 0
         self.timer = 0
+        # Music
+        pygame.mixer.music.load("assets/sounds/among_us.mp3")
         pygame.mixer.music.set_volume(0.5)
         pygame.mixer.music.play(-1)
 
@@ -99,6 +101,11 @@ class PlayState(GameState):
         Enemy.enemy_list.clear()
         # Initiate explosions
         Explosion.explosion_list.clear()
+        # Music
+        pygame.mixer.music.load("assets/sounds/space.mp3")
+        pygame.mixer.music.set_volume(1)
+        pygame.mixer.music.play(-1)
+
 
     def handle_events(self, events):
         for event in events:
@@ -189,7 +196,9 @@ class EndState(GameState):
         ]
         self.lines_printed = 0
         self.timer = 0
+        # Sound and music
         assets.sounds["death"].play()
+        pygame.mixer.music.pause()
 
     def handle_events(self, events):
         for event in events:

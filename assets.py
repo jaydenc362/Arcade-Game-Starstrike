@@ -35,12 +35,12 @@ def load_assets():
     images["boom"] = pygame.transform.scale(
         pygame.image.load("assets/images/boom.png").convert_alpha(),
         (110, 110))
-    # Sounds
-    sounds["among_us"] = pygame.mixer.music.load("assets/sounds/among_us.mp3")
-    # ^ Music volume set independently
+    # Sounds (music loaded and played independently)
     sounds["death"] = pygame.mixer.Sound("assets/sounds/death.mp3")
     sounds["death"].set_volume(0.5)
     sounds["pew"] = pygame.mixer.Sound("assets/sounds/pew.mp3")
     sounds["pew"].set_volume(0.5)
     sounds["boom"] = pygame.mixer.Sound("assets/sounds/boom.mp3")
     sounds["boom"].set_volume(0.3)
+    sounds["damage"] = pygame.mixer.Sound("assets/sounds/damage.mp3")
+    sounds["damage"].set_volume(0.5)

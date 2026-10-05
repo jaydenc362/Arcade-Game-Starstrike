@@ -79,6 +79,9 @@ class Player:
                 self.immunity_timer = self.immunity_time
                 knock_back = self.calculate_knock_back(meteor)
                 self.velocity += knock_back
+                if self.health > 0:
+                    assets.sounds["damage"].play()
+                break
         # If touched by enemy
             for enemy in Enemy.enemy_list[:]:
                 if not self.immune and Collisions.rect_rect_collision(self.rect, enemy.rect) and not enemy.immune:
@@ -87,6 +90,9 @@ class Player:
                     self.immunity_timer = self.immunity_time
                     knock_back = self.calculate_knock_back(enemy)
                     self.velocity += knock_back
+                    if self.health > 0:
+                        assets.sounds["damage"].play()
+                    break
 
     def calculate_knock_back(self, other):
         direction = self.position - other.position
@@ -154,7 +160,6 @@ class Laser:
         self.speed = 2000
         self.width = 100
         self.height = 10
-        self.color = (255, 255, 0)
         # Uncustomizable
         self.position = player_position.copy() + pygame.Vector2(65, 4.5)
         self.velocity = pygame.Vector2(player_velocity.copy().x + self.speed, 0)
@@ -289,9 +294,8 @@ class Enemy:
         self.angle = math.pi
         self.fov = 0.7
         self.range = 400
-        self.acceleration = 500
-        self.max_velocity = 500
-        self.color = (0, 255, 0)
+        self.acceleration = 500 + random.randint(-50, 50)
+        self.max_velocity = 500 + random.randint(-50, 50)
         self.health = 2
         self.immunity_time = 1
         self.flicker_time = 0.05
@@ -331,6 +335,9 @@ class Enemy:
                 self.immunity_timer = self.immunity_time
                 knock_back = self.calculate_enemy_laser_knock_back(laser)
                 self.velocity += knock_back
+                if self.health > 0:
+                    assets.sounds["damage"].play()
+                break
 
     def calculate_enemy_laser_knock_back(self, laser):
             direction = self.position - laser.position
