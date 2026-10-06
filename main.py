@@ -1,6 +1,5 @@
 # Main setup
 import pygame
-import sys
 import asyncio
 import game_state
 import assets

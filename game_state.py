@@ -82,7 +82,8 @@ class PlayState(GameState):
         # Initiate wave, wave event, and wave text
         self.wave = 0
         self.wave_event = pygame.event.custom_type()
-        pygame.time.set_timer(self.wave_event, 3000)
+        self.wave_time = 3
+        self.wave_timer = 0
         self.wave_text_surface = "Wave: "
         # Initiate player, and health
         self.player = Player()
@@ -115,17 +116,20 @@ class PlayState(GameState):
                     self.player.shoot_laser()
                 elif event.key == pygame.K_TAB:
                     self.debug = not self.debug
-            elif event.type == self.wave_event:
-                self.wave += 1
-                # Spawn meteors
-                for _ in range(1 + self.wave // 5):
-                    Meteor.meteor_list.append(Meteor())
-                # Spawn enemies
-                for _ in range(0 + self.wave // 7):
-                    Enemy.enemy_list.append(Enemy())
         return self
 
     def update(self, dt):
+        # Update wave
+        self.wave_timer += dt
+        if self.wave_timer >= self.wave_time:
+            self.wave_timer = 0
+            self.wave += 1
+            # Spawn meteors
+            for _ in range(1 + self.wave // 5):
+                Meteor.meteor_list.append(Meteor())
+            # Spawn enemies
+            for _ in range(0 + self.wave // 7):
+                Enemy.enemy_list.append(Enemy())
         # Update player
         self.player.update(dt)
         if self.player.health <= 0:
