@@ -1,0 +1,229 @@
+# Game state setup
+import pygame
+import assets
+from objects import Player
+from objects import Laser
+from objects import Star
+from objects import Meteor
+from objects import Enemy
+from objects import Explosion
+WIDTH = 1920
+HEIGHT = 1080
+
+
+# Game state interface
+class GameState:
+    def handle_events(self, events):
+        pass
+    def update(self, dt):
+        pass
+    def draw(self, screen):
+        pass
+
+
+# Menu game state
+class MenuState(GameState):
+    def __init__(self):
+        self.font = pygame.font.Font(None, 120)
+        self.lines = [
+            "Arcade Game:",
+            "Starstrike: Python Edition",
+            "",
+            "By Jayden Chan",
+            "",
+            "Press [enter] to start...",
+            "Press [esc] to quit...",
+        ]
+        self.lines_printed = 0
+        self.timer = 0
+        # Music
+        pygame.mixer.music.load("assets/sounds/among_us.ogg")
+        pygame.mixer.music.set_volume(0.5)
+        pygame.mixer.music.play(-1)
+
+    def handle_events(self, events):
+        for event in events:
+            if event.type == pygame.QUIT:
+                return False
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    return False
+                elif event.key == pygame.K_RETURN:
+                    return PlayState()
+        return self
+
+    def update(self, dt):
+        self.timer += dt
+        if self.timer >= 1:
+            self.timer = 0
+            if self.lines_printed < len(self.lines) and self.lines[self.lines_printed] == "": # Skip empty lines
+                self.lines_printed += 1
+            if self.lines_printed < len(self.lines):
+                self.lines_printed += 1
+
+    def draw(self, screen):
+        # Screen color
+        screen.fill((0, 0, 0))
+        # Draw text
+        for i in range(self.lines_printed):
+            text_surface = self.font.render(self.lines[i], True, (255, 255, 255))
+            screen.blit(text_surface, (30, 30 + i * self.font.get_height()))
+        # Display
+        pygame.display.flip()
+
+
+# Play game state
+class PlayState(GameState):
+    def __init__(self):
+        # Initiate fonts
+        self.font = pygame.font.Font(None, 70)
+        # Initate debug mode
+        self.debug = False
+        # Initiate wave, wave event, and wave text
+        self.wave = 0
+        self.wave_event = pygame.event.custom_type()
+        pygame.time.set_timer(self.wave_event, 3000)
+        self.wave_text_surface = "Wave: "
+        # Initiate player, and health
+        self.player = Player()
+        self.health_text_surface = "Health: "
+        # Initiate lasers
+        Laser.laser_list.clear()
+        # Initiate stars
+        Star.star_list.clear()
+        for _ in range(200):
+            Star.star_list.append(Star(True))
+        # Initiate meteors
+        Meteor.meteor_list.clear()
+        # Initiate enemies
+        Enemy.enemy_list.clear()
+        # Initiate explosions
+        Explosion.explosion_list.clear()
+        # Music
+        pygame.mixer.music.load("assets/sounds/space.ogg")
+        pygame.mixer.music.set_volume(1)
+        pygame.mixer.music.play(-1)
+
+    def handle_events(self, events):
+        for event in events:
+            if event.type == pygame.QUIT:
+                return False
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    return MenuState()
+                elif event.key == pygame.K_SPACE:
+                    self.player.shoot_laser()
+                elif event.key == pygame.K_TAB:
+                    self.debug = not self.debug
+            elif event.type == self.wave_event:
+                self.wave += 1
+                # Spawn meteors
+                for _ in range(1 + self.wave // 5):
+                    Meteor.meteor_list.append(Meteor())
+                # Spawn enemies
+                for _ in range(0 + self.wave // 7):
+                    Enemy.enemy_list.append(Enemy())
+        return self
+
+    def update(self, dt):
+        # Update player
+        self.player.update(dt)
+        if self.player.health <= 0:
+            Explosion.explosion_list.append(
+                Explosion(
+                    self.player.position,
+                    self.player.velocity,
+                    self.player.height, False))
+            return EndState()
+        # Update lasers
+        for laser in Laser.laser_list[:]:
+            laser.update(dt)
+        # Update enemies
+        for enemy in Enemy.enemy_list[:]:
+            enemy.update(dt, self.player)
+        # Update meteors
+        for meteor in Meteor.meteor_list[:]:
+            meteor.update(dt)
+        # Update explosions
+        for explosion in Explosion.explosion_list[:]:
+            explosion.update(dt)
+        # Update stars
+        for star in Star.star_list[:]:
+            star.update(dt)
+        # Update text
+        self.wave_text_surface = self.font.render("Wave: " + str(self.wave), True, (255, 255, 255))
+        self.health_text_surface = self.font.render("Health: " + str(self.player.health), True, (0, 255, 0))
+
+    def draw(self, screen):
+        # Screen color
+        screen.fill((0, 0, 0))
+        # Draw stars
+        for star in Star.star_list:
+            star.draw(screen)
+        # Draw lasers
+        for laser in Laser.laser_list:
+            laser.draw(screen, self.debug)
+        # Draw meteors
+        for meteor in Meteor.meteor_list:
+            meteor.draw(screen, self.debug)
+        # Draw enemies
+        for enemy in Enemy.enemy_list:
+            enemy.draw(screen, self.debug)
+        # Draw explosions
+        for explosion in Explosion.explosion_list:
+            explosion.draw(screen)
+        # Draw player
+        self.player.draw(screen, self.debug)
+        # Draw text
+        screen.blit(self.wave_text_surface, (30, 30))
+        screen.blit(self.health_text_surface, (WIDTH - 30 - self.health_text_surface.get_width(), 30))
+        # Display
+        pygame.display.flip()
+
+
+# End game state
+class EndState(GameState):
+    def __init__(self):
+        self.font = pygame.font.Font(None, 120)
+        self.lines = [
+            "YOU LOSE!",
+            "",
+            "Press [enter] to restart...",
+            "Press [esc] to enter menu...",
+        ]
+        self.lines_printed = 0
+        self.timer = 0
+        # Sound and music
+        assets.sounds["death"].play()
+        pygame.mixer.music.pause()
+
+    def handle_events(self, events):
+        for event in events:
+            if event.type == pygame.QUIT:
+                return False
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    return MenuState()
+                elif event.key == pygame.K_RETURN:
+                    return PlayState()
+        return self
+
+    def update(self, dt):
+        self.timer += dt
+        if self.timer >= 1:
+            self.timer = 0
+            if self.lines_printed < len(self.lines) and self.lines[self.lines_printed] == "": # Skip empty lines
+                self.lines_printed += 1
+            if self.lines_printed < len(self.lines):
+                self.lines_printed += 1
+
+
+    def draw(self, screen):
+        # Screen color
+        screen.fill((0, 0, 0))
+        # Draw text
+        for i in range(self.lines_printed):
+            text_surface = self.font.render(self.lines[i], True, (255, 255, 255))
+            screen.blit(text_surface, (30, 30 + i * self.font.get_height()))
+        # Display
+        pygame.display.flip()
