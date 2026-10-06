@@ -1,54 +1,49 @@
 # Main setup
 import pygame
 import sys
-import asyncio
 import game_state
 import assets
 
 
 # Main
-async def main():
-    # Pygame setup
-    pygame.init()
-    WIDTH = 1920
-    HEIGHT = 1080
-    flags = pygame.SCALED | pygame.RESIZABLE
-    screen = pygame.display.set_mode((WIDTH, HEIGHT), flags, vsync = 1)
-    assets.load_assets()
-    pygame.display.set_caption("Jayden Chan's Arcade Game: Starstrike: Python Edition")
-    pygame.display.set_icon(assets.images["icon"])
-    clock = pygame.time.Clock()
-    FPS = 60
-    dt = 0
-    running = True
-    current_state = game_state.MenuState()
+# Pygame setup
+pygame.init()
+WIDTH = 1920
+HEIGHT = 1080
+flags = pygame.SCALED | pygame.RESIZABLE
+screen = pygame.display.set_mode((WIDTH, HEIGHT), flags, vsync = 1)
+assets.load_assets()
+pygame.display.set_caption("Jayden Chan's Arcade Game: Starstrike: Python Edition")
+pygame.display.set_icon(assets.images["icon"])
+clock = pygame.time.Clock()
+FPS = 60
+dt = 0
+running = True
+current_state = game_state.MenuState()
 
 
-    # Game Loop
-    while running:
-        # Events
-        events = pygame.event.get()
-        result = current_state.handle_events(events)
-        if result == False: # Check for game state switch triggered by handle_events()
-            running = False
-        elif result != None:
-            current_state = result
+# Game Loop
+while running:
+    # Events
+    events = pygame.event.get()
+    result = current_state.handle_events(events)
+    if result == False: # Check for game state switch triggered by handle_events()
+        running = False
+    elif result != None:
+        current_state = result
 
-        # FPS
-        dt = clock.tick(FPS) / 1000
+    # FPS
+    dt = clock.tick(FPS) / 1000
 
-        # Run game state
-        result = current_state.update(dt)
-        pygame.display.flip()
-        if result != None: # Check for game state switch triggered by update()
-            current_state = result
-
-        # Asyncio
-        await asyncio.sleep(0)
+    # Run game state
+    result = current_state.update(dt)
+    current_state.draw(screen)
+    if result != None: # Check for game state switch triggered by update()
+        current_state = result
 
 
-# Run main
-asyncio.run(main())
+pygame.quit()
+sys.exit()
 
 
 # ============================
