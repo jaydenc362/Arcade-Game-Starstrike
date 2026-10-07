@@ -15,9 +15,7 @@ Controls:
 
 I am aware of any bugs that I cannot fix caused by Pygame. I understand I could fix them, but I do not possess the knowledge to do so.
 
-============================
 UNIT 2 MATH & AI EXPLANATION
-============================
 
 Vectors:
 - Vectors are used here to store the positions and velocities of objects.
