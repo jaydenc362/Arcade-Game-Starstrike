@@ -1,9 +1,9 @@
 Hi!
 
 I proudly present:
-STARSTRIKER: PYTHON EDITION
+STARSTRIKE: PYTHON EDITION
 
-A remake of the classic 2026 BXSCI AtomHacks XII scratch.mit.edu submission STARSTRIKER
+A remake of the classic 2026 BXSCI AtomHacks XII scratch.mit.edu submission STARSTRIKE
 
 This rendition takes many of BXSCI AI Coding teacher Ms. Qiu's labs into one simple game,
 combining meteor objects and collisions with NPC detection.
