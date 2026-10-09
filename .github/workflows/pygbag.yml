@@ -12,7 +12,7 @@ jobs:
     - name: Checkout
       run: |
             python -m pip install pygbag
-            python -m pygbag --build $GITHUB_WORKSPACE
+            python -m pygbag --build $GITHUB_WORKSPACE/starstrike
     - name : "Upload to GitHub pages branch gh-pages"
       uses: JamesIves/github-pages-deploy-action@4.1.7
       with:
